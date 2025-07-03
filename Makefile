@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test lint format clean example run
+.PHONY: help install install-dev test lint format clean example run benchmark
 
 help: ## Show this help message
 	@echo "VCF Copilot - Clinical Genomics Variant Interpretation Tool"
@@ -48,4 +48,7 @@ version: ## Show version information
 
 setup: install-dev ## Set up development environment
 	@echo "Development environment set up successfully!"
-	@echo "Run 'make example' to test the installation." 
+	@echo "Run 'make example' to test the installation."
+
+benchmark: ## Run performance benchmarks
+	pytest -s tests/test_performance.py 
