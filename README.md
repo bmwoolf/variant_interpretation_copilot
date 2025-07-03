@@ -144,8 +144,6 @@ Environment variables for API access:
 - [ ] Mitochondrial variant detection
 - [ ] Pharmacogenomics (PGx) flags
 - [ ] Nextflow pipeline integration
-- [ ] Cloud-native microservice deployment
-- [ ] LLM-powered gene-disease mechanism summaries
 
 ## License
 
