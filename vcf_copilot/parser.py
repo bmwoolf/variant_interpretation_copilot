@@ -47,9 +47,12 @@ class VCFParser:
             vcf_reader = cyvcf2.VCF(str(vcf_path))
             
             for record in vcf_reader:
-                variant = self._parse_record(record)
-                if variant:
-                    variants.append(variant)
+                try:
+                    variant = self._parse_record(record)
+                    if variant:
+                        variants.append(variant)
+                except Exception as e:
+                    self.logger.warning(f"Skipping malformed record at {getattr(record, 'CHROM', '?')}:{getattr(record, 'POS', '?')}: {e}")
                     
         except Exception as e:
             self.logger.error(f"Error parsing VCF file: {e}")
@@ -126,12 +129,18 @@ class VCFParser:
         """Parse INFO field into dictionary."""
         info = {}
         
-        if record.INFO:
-            for key, value in record.INFO.items():
-                if isinstance(value, (list, tuple)):
-                    info[key] = list(value)
-                else:
-                    info[key] = value
+        if hasattr(record, 'INFO') and record.INFO:
+            # cyvcf2 INFO is dict-like, but may not have items()
+            try:
+                for key in record.INFO:
+                    value = record.INFO[key]
+                    # Convert tuple to string if needed
+                    if isinstance(value, (list, tuple)):
+                        info[key] = ','.join(str(v) for v in value)
+                    else:
+                        info[key] = value
+            except Exception as e:
+                self.logger.warning(f"Failed to parse INFO for record at {getattr(record, 'CHROM', '?')}:{getattr(record, 'POS', '?')}: {e}")
         
         return info
     
