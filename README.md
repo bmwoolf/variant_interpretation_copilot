@@ -47,13 +47,19 @@ pip install -e .
 
 ```bash
 # Basic usage
-python -m vcf_copilot input.vcf --output report.html
+python -m vcf_copilot main data/test.vcf --output report.html
 
 # With phenotype filtering
-python -m vcf_copilot input.vcf --output report.html --phenotype HP:0001250
+python -m vcf_copilot main data/test.vcf --output report.html --phenotype HP:0001250
 
 # JSON output for programmatic use
-python -m vcf_copilot input.vcf --output variants.json --format json
+python -m vcf_copilot main data/test.vcf --output variants.json --format json
+
+# Validate VCF file
+python -m vcf_copilot validate data/test.vcf
+
+# Show version
+python -m vcf_copilot version
 ```
 
 ## Performance Benchmarking
