@@ -43,14 +43,21 @@ class GnomADAnnotator:
             if not variant_data:
                 return None
             
+            # Prefer genome data over exome data
+            genome_data = variant_data.get('genome', {})
+            exome_data = variant_data.get('exome', {})
+            
+            # Use genome data if available, otherwise fall back to exome
+            freq_data = genome_data if genome_data.get('af') is not None else exome_data
+            
             return {
-                'allele_frequency': variant_data.get('allele_frequency'),
-                'allele_count': variant_data.get('allele_count'),
-                'total_count': variant_data.get('total_count'),
-                'homozygote_count': variant_data.get('homozygote_count'),
-                'chromosome': variant_data.get('chromosome'),
-                'position': variant_data.get('position'),
-                'reference_genome': variant_data.get('reference_genome'),
+                'allele_frequency': freq_data.get('af'),
+                'allele_count': freq_data.get('ac'),
+                'total_count': freq_data.get('an'),
+                'homozygote_count': freq_data.get('homozygote_count'),
+                'chromosome': variant_data.get('chrom'),
+                'position': variant_data.get('pos'),
+                'reference_genome': 'GRCh38',  # gnomAD v4 is on GRCh38
             }
             
         except Exception as e:
@@ -100,6 +107,12 @@ class GnomADAnnotator:
             
         except Exception as e:
             self.logger.warning(f"gnomAD query failed: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                try:
+                    error_detail = e.response.json()
+                    self.logger.warning(f"gnomAD API error details: {error_detail}")
+                except:
+                    self.logger.warning(f"gnomAD API response: {e.response.text}")
             return None
     
     def _build_graphql_query(self, variant: Variant) -> str:
@@ -117,23 +130,25 @@ class GnomADAnnotator:
         if chrom.startswith('chr'):
             chrom = chrom[3:]
         
+        # Try a variant query with the correct structure
         query = f"""
         {{
-            variant(chromosome: "{chrom}", position: {variant.pos}, reference_genome: GRCh38) {{
-                chromosome
-                position
-                reference_genome
-                reference_allele
-                alternate_allele
-                allele_frequency
-                allele_count
-                total_count
-                homozygote_count
-                populations {{
-                    id
-                    allele_frequency
-                    allele_count
-                    total_count
+            variant(dataset: gnomad_r4, variantId: "{chrom}-{variant.pos}-{variant.ref}-{variant.alt}") {{
+                chrom
+                pos
+                ref
+                alt
+                genome {{
+                    ac
+                    an
+                    af
+                    homozygote_count
+                }}
+                exome {{
+                    ac
+                    an
+                    af
+                    homozygote_count
                 }}
             }}
         }}
