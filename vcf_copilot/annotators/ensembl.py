@@ -77,11 +77,11 @@ class EnsemblAnnotator:
             Variant consequences data or None if not found
         """
         try:
-            # Build variant identifier
-            variant_id = self._build_variant_id(variant)
+            # Build region string for VEP
+            region_string = self._build_region_string(variant)
             
-            # Query VEP API
-            url = f"{self.base_url}/vep/human/id/{variant_id}"
+            # Query VEP API using region endpoint
+            url = f"{self.base_url}/vep/human/region"
             
             headers = {
                 'Content-Type': 'application/json',
@@ -90,7 +90,12 @@ class EnsemblAnnotator:
             if self.api_key:
                 headers['Authorization'] = f'Bearer {self.api_key}'
             
-            response = requests.get(url, headers=headers, timeout=30)
+            # POST request with region data
+            payload = {
+                'variants': [region_string]
+            }
+            
+            response = requests.post(url, json=payload, headers=headers, timeout=30)
             response.raise_for_status()
             
             data = response.json()
@@ -104,9 +109,27 @@ class EnsemblAnnotator:
             self.logger.warning(f"Ensembl VEP query failed: {e}")
             return None
     
+    def _build_region_string(self, variant: Variant) -> str:
+        """
+        Build Ensembl VEP region string.
+        
+        Args:
+            variant: Variant to build region string for
+            
+        Returns:
+            Ensembl VEP region string in format: "chr pos pos ref/alt"
+        """
+        # Convert chromosome format
+        chrom = variant.chrom
+        if chrom.startswith('chr'):
+            chrom = chrom[3:]
+        
+        # Build region string in format: "chr pos pos ref/alt"
+        return f"{chrom} {variant.pos} {variant.pos} {variant.ref}/{variant.alt}"
+    
     def _build_variant_id(self, variant: Variant) -> str:
         """
-        Build Ensembl variant identifier.
+        Build Ensembl variant identifier (for other endpoints).
         
         Args:
             variant: Variant to build ID for
