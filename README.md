@@ -26,12 +26,18 @@ A modular command-line application for clinical genetic variant interpretation f
 git clone https://github.com/bmwoolf/variant_interpretation_copilot
 cd variant_interpretation_copilot
 
+# Create a new virtual environment (replace .venv with your preferred name)
+python3 -m venv env
+
+# Activate the virtual environment (Mac)
+source env/bin/activate
+
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Build Rust components
-cd parser && cargo build --release
-cd ..
+# Build Rust components (when available)
+# cd parser && cargo build --release
+# cd ..
 
 # Install the CLI tool
 pip install -e .
@@ -48,6 +54,29 @@ python -m vcf_copilot input.vcf --output report.html --phenotype HP:0001250
 
 # JSON output for programmatic use
 python -m vcf_copilot input.vcf --output variants.json --format json
+```
+
+## Performance Benchmarking
+
+You can benchmark the performance of the Python pipeline (and compare to Rust in the future):
+
+### Run all performance benchmarks (pytest)
+```bash
+pytest -s tests/test_performance.py
+```
+
+### Run the CLI benchmark utility
+```bash
+python tests/test_performance.py --vcf data/test.vcf
+# For a large synthetic VCF:
+python tests/test_performance.py --large
+# For scalability tests:
+python tests/test_performance.py --scalability
+```
+
+### Makefile targets
+```bash
+make benchmark  # Performance benchmark
 ```
 
 ## Core Modules
@@ -91,8 +120,8 @@ Clinical Significance: Pathogenic (ClinVar)
 # Python tests
 pytest tests/
 
-# Rust tests
-cd parser && cargo test
+# Rust tests (when available)
+# cd parser && cargo test
 ```
 
 ## Configuration
@@ -104,6 +133,7 @@ Environment variables for API access:
 
 ## Roadmap
 
+- [ ] Live data from gnomAD, ClinVar, Ensembl
 - [ ] CNV support via ExomeDepth
 - [ ] Mitochondrial variant detection
 - [ ] Pharmacogenomics (PGx) flags
