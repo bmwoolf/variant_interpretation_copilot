@@ -91,3 +91,21 @@ class TestVCFParser:
         assert 'sample_count' in header_info
         assert header_info['sample_count'] == 1
         assert 'SAMPLE1' in header_info['samples'] 
+
+def test_clinvar_query_chromosome_normalization():
+    from vcf_copilot.annotators.clinvar import ClinVarAnnotator
+    from vcf_copilot.models import Variant
+    annotator = ClinVarAnnotator()
+    variant = Variant(chrom='chr17', pos=7577120, ref='A', alt='G', variant_type='SNV')
+    query = annotator._build_search_query(variant)
+    assert 'chr17' not in query
+    assert '17[chr]' in query
+
+def test_gnomad_query_chromosome_normalization():
+    from vcf_copilot.annotators.gnomad import GnomADAnnotator
+    from vcf_copilot.models import Variant
+    annotator = GnomADAnnotator()
+    variant = Variant(chrom='chr17', pos=7577120, ref='A', alt='G', variant_type='SNV')
+    query = annotator._build_graphql_query(variant)
+    assert 'chr17' not in query
+    assert '17-7577120-A-G' in query 

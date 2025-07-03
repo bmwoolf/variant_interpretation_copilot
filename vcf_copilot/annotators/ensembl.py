@@ -115,17 +115,19 @@ class EnsemblAnnotator:
         
         Args:
             variant: Variant to build region string for
-            
+        
         Returns:
-            Ensembl VEP region string in format: "chr pos pos ref/alt"
+            Ensembl VEP region string in format: "chr start end ref/alt"
         """
         # Convert chromosome format
         chrom = variant.chrom
         if chrom.startswith('chr'):
             chrom = chrom[3:]
-        
-        # Build region string in format: "chr pos pos ref/alt"
-        return f"{chrom} {variant.pos} {variant.pos} {variant.ref}/{variant.alt}"
+        start = variant.pos
+        # For indels, end = start + len(ref) - 1
+        end = start + len(variant.ref) - 1
+        allele_string = f"{variant.ref}/{variant.alt}"
+        return f"{chrom} {start} {end} {allele_string}"
     
     def _build_variant_id(self, variant: Variant) -> str:
         """

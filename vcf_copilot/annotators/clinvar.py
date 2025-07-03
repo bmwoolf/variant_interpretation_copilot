@@ -130,8 +130,11 @@ class ClinVarAnnotator:
             Search query string
         """
         # Basic query with chromosome and position
+        chrom = variant.chrom
+        if chrom.startswith('chr'):
+            chrom = chrom[3:]
         query_parts = [
-            f"{variant.chrom}[chr]",
+            f"{chrom}[chr]",
             f"{variant.pos}[pos]",
         ]
         

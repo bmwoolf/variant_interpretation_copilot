@@ -121,7 +121,7 @@ class GnomADAnnotator:
         
         Args:
             variant: Variant to build query for
-            
+        
         Returns:
             GraphQL query string
         """
@@ -129,11 +129,11 @@ class GnomADAnnotator:
         chrom = variant.chrom
         if chrom.startswith('chr'):
             chrom = chrom[3:]
-        
-        # Try a variant query with the correct structure
+        # For indels, gnomAD expects chrom-pos-ref-alt (already handled), but left-alignment is not implemented here.
+        # TODO: Implement left-alignment for indels if needed.
         query = f"""
         {{
-            variant(dataset: gnomad_r4, variantId: "{chrom}-{variant.pos}-{variant.ref}-{variant.alt}") {{
+            variant(dataset: gnomad_r4, variantId: \"{chrom}-{variant.pos}-{variant.ref}-{variant.alt}\") {{
                 chrom
                 pos
                 ref
@@ -153,7 +153,6 @@ class GnomADAnnotator:
             }}
         }}
         """
-        
         return query
     
     def get_population_frequencies(self, variant: Variant) -> Dict[str, float]:
