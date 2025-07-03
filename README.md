@@ -47,10 +47,10 @@ pip install -e .
 
 ```bash
 # Basic usage
-python -m vcf_copilot main data/test.vcf --output report.html
+python -m vcf_copilot main data/test.vcf --output output_reports/report.html
 
 # With phenotype filtering
-python -m vcf_copilot main data/test.vcf --output report.html --phenotype HP:0001250
+python -m vcf_copilot main data/test.vcf --output output_reports/report.html --phenotype HP:0001250
 
 # JSON output for programmatic use
 python -m vcf_copilot main data/test.vcf --output variants.json --format json
@@ -139,7 +139,8 @@ Environment variables for API access:
 
 ## Roadmap
 
-- [ ] Live data from gnomAD, ClinVar, Ensembl
+- [x] Live data from gnomAD, ClinVar, Ensembl
+- [ ] Rust parser
 - [ ] CNV support via ExomeDepth
 - [ ] Mitochondrial variant detection
 - [ ] Pharmacogenomics (PGx) flags

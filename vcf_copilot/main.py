@@ -35,7 +35,7 @@ def main(
         dir_okay=False,
     ),
     output: Path = typer.Option(
-        "report.html",
+        "output_reports/report.html",
         "--output",
         "-o",
         help="Output file path",
@@ -91,6 +91,11 @@ def main(
         if format.lower() not in ["html", "json"]:
             console.print(f"[red]Error: Unsupported format '{format}'. Use 'html' or 'json'.[/red]")
             sys.exit(1)
+        
+        # Create output_reports directory if it doesn't exist
+        output_dir = output.parent
+        if output_dir != Path("."):
+            output_dir.mkdir(parents=True, exist_ok=True)
         
         # Create report configuration
         config = ReportConfig(

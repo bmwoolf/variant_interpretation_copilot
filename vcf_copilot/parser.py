@@ -75,8 +75,12 @@ class VCFParser:
             # Determine variant type
             variant_type = self._determine_variant_type(record)
             
-            # Parse INFO field
-            info = self._parse_info(record)
+            # Parse INFO field with better error handling
+            try:
+                info = self._parse_info(record)
+            except Exception as e:
+                self.logger.warning(f"Failed to parse INFO for record at {getattr(record, 'CHROM', '?')}:{getattr(record, 'POS', '?')}: {e}")
+                info = {}  # Use empty dict as fallback
             
             # Extract gene and transcript information
             gene = info.get('Gene_Name', info.get('Gene', None))
@@ -129,18 +133,35 @@ class VCFParser:
         """Parse INFO field into dictionary."""
         info = {}
         
-        if hasattr(record, 'INFO') and record.INFO:
-            # cyvcf2 INFO is dict-like, but may not have items()
-            try:
-                for key in record.INFO:
-                    value = record.INFO[key]
-                    # Convert tuple to string if needed
+        try:
+            # Try to access INFO field safely
+            if hasattr(record, 'INFO') and record.INFO:
+                # Use dict() to convert to a regular Python dict
+                raw_info = dict(record.INFO)
+                
+                for key, value in raw_info.items():
+                    # Handle different value types properly
                     if isinstance(value, (list, tuple)):
-                        info[key] = ','.join(str(v) for v in value)
+                        # Convert each element to string and join
+                        try:
+                            info[key] = ','.join(str(v) for v in value)
+                        except Exception as e:
+                            # If individual elements can't be converted, use repr
+                            self.logger.debug(f"Failed to convert tuple/list element: {e}")
+                            info[key] = repr(value)
+                    elif isinstance(value, bytes):
+                        # Handle bytes objects
+                        info[key] = value.decode('utf-8', errors='ignore')
+                    elif hasattr(value, 'encode'):
+                        # Handle objects with encode method (like bytes-like objects)
+                        try:
+                            info[key] = str(value)
+                        except Exception:
+                            info[key] = repr(value)
                     else:
                         info[key] = value
-            except Exception as e:
-                self.logger.warning(f"Failed to parse INFO for record at {getattr(record, 'CHROM', '?')}:{getattr(record, 'POS', '?')}: {e}")
+        except Exception as e:
+            self.logger.warning(f"Failed to parse INFO for record at {getattr(record, 'CHROM', '?')}:{getattr(record, 'POS', '?')}: {e}")
         
         return info
     

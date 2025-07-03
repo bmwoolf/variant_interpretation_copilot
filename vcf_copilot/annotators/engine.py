@@ -3,6 +3,7 @@ Main annotation engine that coordinates all annotation sources.
 """
 
 import logging
+import requests
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -48,24 +49,28 @@ class AnnotationEngine:
             # Create a copy of the variant for annotation
             annotated_variant = variant.copy(deep=True)
             
-            # Annotate with ClinVar
+            # Annotate with ClinVar (with timeout and better error handling)
             try:
                 clinvar_data = self.clinvar_annotator.annotate(variant)
                 if clinvar_data:
                     annotated_variant.clinvar_significance = clinvar_data.get('clinical_significance')
                     annotated_variant.clinvar_diseases = clinvar_data.get('diseases', [])
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+                self.logger.warning(f"ClinVar API timeout/connection error for {variant.chrom}:{variant.pos}: {e}")
             except Exception as e:
                 self.logger.warning(f"ClinVar annotation failed for {variant.chrom}:{variant.pos}: {e}")
             
-            # Annotate with gnomAD
+            # Annotate with gnomAD (with timeout and better error handling)
             try:
                 gnomad_data = self.gnomad_annotator.annotate(variant)
                 if gnomad_data:
                     annotated_variant.gnomad_af = gnomad_data.get('allele_frequency')
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+                self.logger.warning(f"gnomAD API timeout/connection error for {variant.chrom}:{variant.pos}: {e}")
             except Exception as e:
                 self.logger.warning(f"gnomAD annotation failed for {variant.chrom}:{variant.pos}: {e}")
             
-            # Annotate with Ensembl
+            # Annotate with Ensembl (with timeout and better error handling)
             try:
                 ensembl_data = self.ensembl_annotator.annotate(variant)
                 if ensembl_data:
@@ -77,6 +82,8 @@ class AnnotationEngine:
                         annotated_variant.hgvs_c = ensembl_data.get('hgvs_c')
                     if not annotated_variant.hgvs_p:
                         annotated_variant.hgvs_p = ensembl_data.get('hgvs_p')
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+                self.logger.warning(f"Ensembl API timeout/connection error for {variant.chrom}:{variant.pos}: {e}")
             except Exception as e:
                 self.logger.warning(f"Ensembl annotation failed for {variant.chrom}:{variant.pos}: {e}")
             
