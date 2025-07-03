@@ -1,0 +1,4 @@
+##fileformat=VCFv4.2
+##INFO=<ID=Gene_Name,Number=1,Type=String,Description="Gene name">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+1	69091	rs775809821	A	G	100	PASS	Gene_Name=OR4F5
