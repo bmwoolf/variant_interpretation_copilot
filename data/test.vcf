@@ -1,0 +1,16 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##INFO=<ID=Gene_Name,Number=1,Type=String,Description="Gene name">
+##INFO=<ID=Transcript_ID,Number=1,Type=String,Description="Transcript ID">
+##INFO=<ID=HGVSc,Number=1,Type=String,Description="cDNA notation">
+##INFO=<ID=HGVSp,Number=1,Type=String,Description="Protein notation">
+##INFO=<ID=IMPACT,Number=1,Type=String,Description="Variant impact">
+##INFO=<ID=CADD_RAW,Number=1,Type=Float,Description="CADD raw score">
+##INFO=<ID=PolyPhen,Number=1,Type=String,Description="PolyPhen prediction">
+##INFO=<ID=SIFT,Number=1,Type=String,Description="SIFT prediction">
+##contig=<ID=chr17,length=83257441>
+##contig=<ID=chr13,length=114364328>
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLE1
+chr17	7577120	rs121913343	A	G	100	PASS	Gene_Name=TP53;Transcript_ID=ENST00000269305;HGVSc=c.524C>A;HGVSp=p.Pro175His;IMPACT=HIGH;CADD_RAW=25.3;PolyPhen=probably_damaging:0.998;SIFT=deleterious:0.01	GT:AD:DP:GQ:PL	0/1:45,55:100:99:1000,0,2000
+chr13	32316467	rs80357711	G	A	100	PASS	Gene_Name=BRCA2;Transcript_ID=ENST00000380152;HGVSc=c.5946delT;HGVSp=p.Ser1982ArgfsTer22;IMPACT=HIGH;CADD_RAW=30.1;PolyPhen=probably_damaging:0.999;SIFT=deleterious:0.00	GT:AD:DP:GQ:PL	0/1:30,70:100:99:1500,0,3000
+chr17	7577121	.	T	C	100	PASS	Gene_Name=TP53;Transcript_ID=ENST00000269305;HGVSc=c.525A>G;HGVSp=p.Pro175Pro;IMPACT=LOW;CADD_RAW=5.2;PolyPhen=benign:0.001;SIFT=tolerated:0.15	GT:AD:DP:GQ:PL	0/1:60,40:100:99:800,0,1200 
